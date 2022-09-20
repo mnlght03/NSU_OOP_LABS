@@ -1,5 +1,5 @@
-(CC) = g++
-(CFLAGS) = -Wall -Wextra -Werror
+CC = g++
+CFLAGS = -Wall -Wextra -Werror
 
 all: BigInt main.cpp
 	$(CC) $(CFLAGS) BigInt.o main.cpp -o main

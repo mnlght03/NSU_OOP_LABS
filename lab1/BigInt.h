@@ -3,8 +3,11 @@
 
 #include <iostream>
 #include <vector>
+#include <iomanip>
+#include <string>
 
 #define MODULE 1000000000
+#define SINGLE_DIGIT_LEN 9
 
 class BigInt {
   public:
@@ -47,7 +50,8 @@ class BigInt {
 
     size_t size() const;  // size in bytes
   private:
-    std::vector<int> data; 
+    std::vector<int> data;
+    bool isNegative;
 };
 
 BigInt operator+(const BigInt&, const BigInt&);
