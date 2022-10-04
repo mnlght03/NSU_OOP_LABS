@@ -16,15 +16,15 @@ class BigInt {
     BigInt(std::string);  // бросать исключение std::invalid_argument при ошибке
     BigInt(const BigInt&);
     ~BigInt();
-    void print();
+    void print(); // for debugging
     BigInt& operator=(const BigInt&);  // возможно присваивание самому себе!
 
     BigInt operator~() const;
 
     BigInt& operator++();
-    const BigInt operator++(int) const;
+    const BigInt operator++(int);
     BigInt& operator--();
-    const BigInt operator--(int) const;
+    const BigInt operator--(int);
 
     BigInt& operator+=(const BigInt&);
     BigInt& operator*=(const BigInt&);
