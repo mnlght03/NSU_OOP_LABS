@@ -9,13 +9,13 @@ static const int SINGLE_DIGIT_LEN = 9;
 
 
 BigInt::BigInt() {
-  negative = 0;
+  negative = false;
 }
 
 BigInt::BigInt(int num) {
-  negative = 0;
+  negative = false;
   if (num < 0) {
-    negative = 1;
+    negative = true;
     num = -num;
   }
   while (num) {
@@ -25,7 +25,7 @@ BigInt::BigInt(int num) {
 }
 
 BigInt::BigInt(std::string str) {
-  this->negative = 0;
+  negative = 0;
   size_t len = SINGLE_DIGIT_LEN,
          endPos = str.size();
   while (endPos) {
@@ -59,17 +59,22 @@ BigInt::BigInt(const BigInt& num) {
 
 BigInt::~BigInt(){}
 
-void BigInt::print() {
-  if (this->isNegative())
-    std::cout << "-";
-  for (int i = data.size() - 1; i >= 0; i--)
-    std::cout << std::setfill('0') << std::setw(9) << data[i] << " ";
-  std::cout << std::endl;
-}
-
 BigInt& BigInt::operator=(const BigInt& num) {
   this->negative = num.negative;
   this->data = num.data;
+  return *this;
+}
+
+BigInt& BigInt::operator=(const int& num) {
+  this->negative = num < 0 ? 1 : 0;
+  this->data.clear();
+  this->data.push_back(num < 0 ? -num : num);
+  return *this;
+}
+
+BigInt& BigInt::operator=(std::string str) {
+  BigInt temp(str);
+  *this = temp;
   return *this;
 }
 
@@ -158,6 +163,12 @@ BigInt operator-(const BigInt& a, const BigInt& b) {
 }
 
 BigInt operator*(const BigInt& a, const BigInt& b) {
+  if (b == 0)
+    return 0;
+  if (b == 1)
+    return a;
+  if (b == -1)
+    return -a;
   BigInt res;
   res.negative = 1;
   if ((a.isNegative() && b.isNegative()) ||
@@ -184,9 +195,12 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
 }
 
 BigInt operator/(const BigInt& a, const BigInt& b) {
-  // if (b == 0) // throw error
-  // if (b == 1) // make int conversion
-  //   return a;
+  if (b == 0)
+    throw std::invalid_argument("division by zero");
+  if (b == 1)
+    return a;
+  if (b == -1)
+    return -a;
   BigInt leftOp = a.isNegative() ? -a : a,
          rightOp = b. isNegative() ? -b : b,
          res(0);
@@ -205,11 +219,6 @@ BigInt operator%(const BigInt& a, const BigInt& b) {
   }
   return leftOp + rightOp;
 }
-
-// BigInt operator^(const BigInt&, const BigInt&);
-// BigInt operator&(const BigInt&, const BigInt&);
-// BigInt operator|(const BigInt&, const BigInt&);
-
 
 BigInt& BigInt::operator+=(const BigInt& num) {
   *this = *this + num;
@@ -235,22 +244,6 @@ BigInt& BigInt::operator%=(const BigInt& num) {
   *this = *this % num;
   return *this;
 }
-
-// BigInt& BigInt::operator^=(const BigInt& num) {
-//   *this = *this ^ num;
-//   return *this;
-// }
-
-
-// BigInt& BigInt::operator&=(const BigInt& num) {
-//   *this = *this & num;
-//   return *this;
-// }
-
-// BigInt& BigInt::operator|=(const BigInt& num) {
-//   *this = *this | num;
-//   return *this;
-// }
 
 BigInt BigInt::operator+() const {
   return *this;
