@@ -4,7 +4,7 @@ static const int MODULE = 1000000000;
 static const int SINGLE_DIGIT_LEN = 9;
 
 // namespace {
-
+ 
 // }
 
 
@@ -31,9 +31,15 @@ BigInt::BigInt(std::string str) {
   while (endPos) {
     int num = 0;
     len = (int)(endPos - len) > 0 ? len : endPos;
-    num = stoi(str.substr(endPos - len, len));
+    std::string substr = str.substr(endPos - len, len);
+    for (int i = 0; substr[i]; i++) {
+      if (substr[0] == '-' && !(endPos - len))
+        continue;
+      if (substr[i] < '0' || substr[i] > '9')
+        throw std::invalid_argument("Invalid format");
+    }
+    num = stoi(substr);
     if (num < 0 && (endPos - len) == 0) {
-      std::cout << "HERE " << std::endl;
       num *= -1;
       negative = 1;
     }
@@ -188,16 +194,21 @@ BigInt operator/(const BigInt& a, const BigInt& b) {
     leftOp -= rightOp;
     ++res;
   }
-  return res;
+  return --res;
 }
 
-BigInt operator%(const BigInt&, const BigInt&) {
-
+BigInt operator%(const BigInt& a, const BigInt& b) {
+  BigInt leftOp = a.isNegative() ? -a : a,
+         rightOp = b.isNegative() ? -b : b;
+  while (!leftOp.isNegative()) {
+    leftOp -= rightOp;
+  }
+  return leftOp + rightOp;
 }
 
-BigInt operator^(const BigInt&, const BigInt&);
-BigInt operator&(const BigInt&, const BigInt&);
-BigInt operator|(const BigInt&, const BigInt&);
+// BigInt operator^(const BigInt&, const BigInt&);
+// BigInt operator&(const BigInt&, const BigInt&);
+// BigInt operator|(const BigInt&, const BigInt&);
 
 
 BigInt& BigInt::operator+=(const BigInt& num) {
@@ -215,20 +226,22 @@ BigInt& BigInt::operator-=(const BigInt& num) {
   return *this;
 }
 
-// BigInt& BigInt::operator/=(const BigInt& num) {
-//   *this = *this / num;
-//   return *this;
-// }
+BigInt& BigInt::operator/=(const BigInt& num) {
+  *this = *this / num;
+  return *this;
+}
+
+BigInt& BigInt::operator%=(const BigInt& num) {
+  *this = *this % num;
+  return *this;
+}
 
 // BigInt& BigInt::operator^=(const BigInt& num) {
 //   *this = *this ^ num;
 //   return *this;
 // }
 
-// BigInt& BigInt::operator%=(const BigInt& num) {
-//   *this = *this % num;
-//   return *this;
-// }
+
 // BigInt& BigInt::operator&=(const BigInt& num) {
 //   *this = *this & num;
 //   return *this;
@@ -314,49 +327,127 @@ bool BigInt::operator>(const BigInt& num) const {
 }
 
 bool BigInt::operator<=(const BigInt& num) const {
-  if (this->isNegative() && !num.isNegative())
-    return true;
-  if (this->isNegative() && num.isNegative()) {
-    return -(*this) > -num;
-  }
-  if (this->length() < num.length())
-    return true;
-  if (num.length() < this->length())
-    return false;
-
-  for (int i = this->length() - 1; i >= 0; --i) {
-    int diff = this->data[i] - num.data[i];
-    if (diff < 0)
-      return true;
-    if (diff > 0)
-      return false;
-  }
-
-  return true;
+  return !(*this > num);
 }
 
 bool BigInt::operator>=(const BigInt& num) const {
-  if (!this->isNegative() && num.isNegative())
-    return true;
-  if (this->isNegative() && !num.isNegative())
-    return false;
-  if (this->isNegative() && num.isNegative())
-    return -(*this) < -num;
-  if (this->length() > num.length())
-    return true;
-  if (this->length() < num.length())
-    return false;
-
-  for (int i = this->length() - 1; i >= 0; --i) {
-    int diff = this->data[i] - num.data[i];
-    if (diff < 0)
-      return false;
-    if (diff > 0)
-      return true;
-  }
-
-  return true;
+  return !(*this < num);
 }
 
-// operator int() const;
-// operator std::string() const;
+bool BigInt::operator==(const int& num) const {
+  if (this->length() > 2)
+    return false;
+  int temp = this->data[0];
+  if (this->length() > 1) {
+    if (!this->isNegative() && (size_t)this->data[1] * MODULE + temp > INT_MAX)
+      return false;
+    if (this->isNegative() && (size_t)this->data[1] * MODULE + temp > (size_t)INT_MAX + 1)
+      return false;
+    temp += this->data[1] * MODULE;
+  }
+  if (this->isNegative())
+    temp = -temp;
+  return temp == num;
+}
+
+bool BigInt::operator!=(const int& num) const {
+  return !(*this == num);
+}
+
+bool BigInt::operator>(const int& num) const {
+  if (this->length() > 2)
+    return this->isNegative() ? false : true;
+  int temp = this->data[0];
+  if (this->length() > 1) {
+    if (!this->isNegative() && (size_t)this->data[1] * MODULE + temp > INT_MAX)
+      return true;
+    if (this->isNegative() && (size_t)this->data[1] * MODULE + temp > (size_t)INT_MAX + 1)
+      return false;
+    temp += this->data[1] * MODULE;
+  }
+  if (this->isNegative())
+    temp = -temp;
+  return temp > num;
+}
+
+bool BigInt::operator<(const int& num) const {
+  if (this->length() > 2)
+    return this->isNegative() ? true : false;
+  int temp = this->data[0];
+  if (this->length() > 1) {
+    if (!this->isNegative() && (size_t)this->data[1] * MODULE + temp > INT_MAX)
+      return false;
+    if (this->isNegative() && (size_t)this->data[1] * MODULE + temp > (size_t)INT_MAX + 1)
+      return true;
+    temp += this->data[1] * MODULE;
+  }
+  if (this->isNegative())
+    temp = -temp;
+  return temp < num;
+}
+
+bool BigInt::operator<=(const int& num) const {
+  return !(*this > num);
+}
+
+bool BigInt::operator>=(const int& num) const {
+  return !(*this < num);
+}
+
+bool BigInt::operator==(std::string str) const {
+  BigInt temp(str);
+  return *this == temp;
+}
+
+bool BigInt::operator!=(std::string str) const {
+  BigInt temp(str);
+  return *this != temp;
+}
+
+bool BigInt::operator<(std::string str) const {
+  BigInt temp(str);
+  return *this < temp;
+}
+
+bool BigInt::operator>(std::string str) const {
+  BigInt temp(str);
+  return *this > temp;
+}
+
+bool BigInt::operator<=(std::string str) const  {
+  BigInt temp(str);
+  return *this <= temp;
+}
+
+bool BigInt::operator>=(std::string str) const  {
+  BigInt temp(str);
+  return *this >= temp;
+}
+
+BigInt::operator int() const {
+  if (this->length() > 2)
+    throw std::overflow_error("integer overflow");
+  size_t res = this->data[0];
+  if (this->length() > 0)
+    res += (size_t)this->data[1] * MODULE;
+  if (!this->isNegative() && res > INT_MAX)
+    throw std::overflow_error("integer overflow");
+  if (this->isNegative() && res > (size_t)INT_MAX + 1) {
+    throw std::overflow_error("integer overflow");
+  }
+  return this->isNegative() ? -res : res;
+}
+
+BigInt::operator std::string() const {
+  std::string str;
+  if (this->isNegative())
+    str += "-";
+  for (int i = this->length() - 1; i >= 0; --i) {
+    str += std::to_string(this->data[i]);
+  }
+  return str;
+}
+
+std::ostream& operator<<(std::ostream& o, const BigInt& i) {
+  return o << (std::string)i;
+}

@@ -5,6 +5,7 @@
 #include <vector>
 #include <iomanip>  // stoi
 #include <string>
+#include <climits>  // INT_MAX
 
 class BigInt {
   public:
@@ -51,8 +52,23 @@ class BigInt {
     bool operator<=(const BigInt&) const;
     bool operator>=(const BigInt&) const;
 
+    bool operator==(const int&) const;
+    bool operator!=(const int&) const;
+    bool operator<(const int&) const;
+    bool operator>(const int&) const;
+    bool operator<=(const int&) const;
+    bool operator>=(const int&) const;
+
+    bool operator==(std::string) const;
+    bool operator!=(std::string) const;
+    bool operator<(std::string) const;
+    bool operator>(std::string) const;
+    bool operator<=(std::string) const;
+    bool operator>=(std::string) const;
+
     operator int() const;
     operator std::string() const;
+
     bool isNegative() const;
     size_t length() const;
     size_t size() const;  // size in bytes
