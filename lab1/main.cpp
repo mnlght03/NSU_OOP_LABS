@@ -1,12 +1,11 @@
 #include "BigInt.h"
-// #include <iostream>
 #include <climits>
+#include <cassert>
+
+#define MODULE 1000000000
 
 int main() {
-    // BigInt a("100");
-    // a.print();
-    // std::cout << std::endl;
-    std::vector<int> v;
-    v.push_back(51);
-    std::cout << *--v.end() << std::endl;
+    // MAKE AN OPTIMISATION FOR DIVISION WHEN B LENGTH == 1
+    BigInt g(5);
+    std::cout << UINT_MAX << " " << INT_MAX << std::endl;
 }

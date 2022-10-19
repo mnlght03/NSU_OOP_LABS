@@ -1,12 +1,9 @@
 #include "BigInt.h"
 
+// base of positional notation
 static const int MODULE = 1000000000;
+
 static const int SINGLE_DIGIT_LEN = 9;
-
-// namespace {
- 
-// }
-
 
 BigInt::BigInt() {
   negative = false;
@@ -18,6 +15,32 @@ BigInt::BigInt(int num) {
     negative = true;
     num = -num;
   }
+  if (!num)
+    data.push_back(num);
+  while (num) {
+    data.push_back(num % MODULE);
+    num /= MODULE;
+  }
+}
+
+BigInt::BigInt(long int num) {
+  negative = false;
+  if (num < 0) {
+    negative = true;
+    num = -num;
+  }
+  if (!num)
+    data.push_back(num);
+  while (num) {
+    data.push_back(num % MODULE);
+    num /= MODULE;
+  }
+}
+
+BigInt::BigInt(unsigned long int num) {
+  negative = false;
+  if (!num)
+    data.push_back(num);
   while (num) {
     data.push_back(num % MODULE);
     num /= MODULE;
@@ -38,7 +61,7 @@ BigInt::BigInt(std::string str) {
       if (substr[i] < '0' || substr[i] > '9')
         throw std::invalid_argument("Invalid format");
     }
-    num = stoi(substr);
+    num = std::stoi(substr);
     if (num < 0 && (endPos - len) == 0) {
       num *= -1;
       negative = 1;
@@ -118,7 +141,7 @@ BigInt operator+(const BigInt& a, const BigInt& b) {
   if (a.isNegative() && !b.isNegative())
     return b - (-a);
   if (!a.isNegative() && b.isNegative())
-    return a - b;
+    return a - (-b);
 
   BigInt res;
   int carry = 0;
@@ -162,9 +185,15 @@ BigInt operator-(const BigInt& a, const BigInt& b) {
   return res;
 }
 
+#define HERE std::cout<<"HERE: "<<__LINE__<<std::endl
+
 BigInt operator*(const BigInt& a, const BigInt& b) {
   if (b == 0)
     return 0;
+  if (a == 1)
+    return b;
+  if (a == -1)
+    return -b;
   if (b == 1)
     return a;
   if (b == -1)
@@ -195,6 +224,8 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
 }
 
 BigInt operator/(const BigInt& a, const BigInt& b) {
+  if (a == 0)
+    return 0;
   if (b == 0)
     throw std::invalid_argument("division by zero");
   if (b == 1)
@@ -431,12 +462,25 @@ BigInt::operator int() const {
   return this->isNegative() ? -res : res;
 }
 
+BigInt::operator unsigned int() const {
+  if (this->length() > 2)
+    throw std::overflow_error("unsigned integer overflow");
+  size_t res = this->data[0];
+  if (this->length() > 0)
+    res += (size_t)this->data[1] * MODULE;
+  if (res > UINT_MAX)
+    throw std::overflow_error("unsigned integer overflow");
+  return res;
+}
+
 BigInt::operator std::string() const {
   std::string str;
   if (this->isNegative())
     str += "-";
-  for (int i = this->length() - 1; i >= 0; --i) {
-    str += std::to_string(this->data[i]);
+  str += std::to_string(this->data[this->length() - 1]);
+  for (int i = this->length() - 2; i >= 0; --i) {
+    std::string temp = std::to_string(this->data[i]);
+    str += std::string(SINGLE_DIGIT_LEN - temp.length(), '0') + temp;
   }
   return str;
 }
