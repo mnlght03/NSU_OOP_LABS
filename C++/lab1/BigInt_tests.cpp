@@ -31,11 +31,11 @@ TEST(BigIntConstructor, BigStringValue) {
   EXPECT_EQ(a, "123123123132123123211231");
 }
 
-// TEST(BigIntConstructor, UnsignedIntValue) {
-//   unsigned int num = UINT_MAX;
-//   BigInt a(num);
-//   EXPECT_EQ(a, num);
-// }
+TEST(BigIntConstructor, UnsignedIntValue) {
+  BigInt a(ULONG_MAX);
+  EXPECT_EQ(a, ULONG_MAX);
+  // EXPECT_EQ(static_cast<std::string>(a), std::to_string(ULONG_MAX));
+}
 
 TEST(BigIntConstructor, UnsignedLongIntValue) {
   BigInt a(ULONG_MAX);
@@ -159,20 +159,20 @@ TEST(BigIntOperator, MultiplicationOfBigInts) {
   EXPECT_EQ(f * g, std::string(std::to_string(MODULE) + std::to_string(MODULE).erase(0, 1)));
 }
 
-// TEST(BigIntOperator, DivisionOfBigInts) {
-//   BigInt a(MODULE);
-//   BigInt b(2);
-//   EXPECT_EQ(a / b, MODULE / 2);
-//   EXPECT_EQ(b / a, 0);
-//   BigInt c(0);
-//   try {
-//     a / c;
-//     FAIL() << "Expected Division by zero error";
-//   } catch (std::invalid_argument const& err) {
-//     EXPECT_EQ(std::string("Division by zero"), err.what());
-//   }
-//   EXPECT_EQ(c / a, 0);
-// }
+TEST(BigIntOperator, DivisionOfBigInts) {
+  BigInt a(MODULE);
+  BigInt b(2);
+  EXPECT_EQ(a / b, MODULE / 2);
+  EXPECT_EQ(b / a, 0);
+  BigInt c(0);
+  try {
+    a / c;
+    FAIL() << "Expected 'division by zero' error";
+  } catch (std::invalid_argument const& err) {
+    EXPECT_EQ(std::string("division by zero"), err.what());
+  }
+  EXPECT_EQ(c / a, 0);
+}
 
 // TEST(BigIntOperator, RemainingOfBigInts) {
 //   BigInt a(MODULE);

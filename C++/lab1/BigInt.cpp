@@ -185,11 +185,7 @@ BigInt operator-(const BigInt& a, const BigInt& b) {
   return res;
 }
 
-#define HERE std::cout<<"HERE: "<<__LINE__<<std::endl
-
 BigInt operator*(const BigInt& a, const BigInt& b) {
-  if (b == 0)
-    return 0;
   if (a == 1)
     return b;
   if (a == -1)
@@ -199,10 +195,11 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
   if (b == -1)
     return -a;
   BigInt res;
-  res.negative = 1;
-  if ((a.isNegative() && b.isNegative()) ||
-      (!a.isNegative() && !b.isNegative()))
-        res.negative = 0;
+  if (b == 0) {
+    res = 0;
+    return res;
+  }
+ 
   for (int i = 0; i < b.length(); ++i) {
     BigInt termOfMultiplication;
     for (int k = 0; k < i; ++k) // pad with zeros
@@ -220,12 +217,13 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
         termOfMultiplication.data.pop_back();
     }
   }
+  if ((a.isNegative() && !b.isNegative()) ||
+    (!a.isNegative() && b.isNegative()))
+      res = -res;
   return res;
 }
 
 BigInt operator/(const BigInt& a, const BigInt& b) {
-  if (a == 0)
-    return 0;
   if (b == 0)
     throw std::invalid_argument("division by zero");
   if (b == 1)
@@ -233,12 +231,36 @@ BigInt operator/(const BigInt& a, const BigInt& b) {
   if (b == -1)
     return -a;
   BigInt leftOp = a.isNegative() ? -a : a,
-         rightOp = b. isNegative() ? -b : b,
+         rightOp = b.isNegative() ? -b : b,
          res(0);
+  if (a == 0 || b.length() > a.length())
+    return res;
+  if (a.length() == 1 && b.length() == 1) {
+    res = (a.data[0] / b.data[0]);
+    return res;
+  }
+  if (b.length() == 1) {
+    for (int i = 0; i < a.length(); i++) {
+      BigInt divOperand;
+      for (int j = 0; j < i; j++) {
+        divOperand.data.push_back(0);
+      }
+      if (!(a.data[i] / b.data[0]) && i)
+        divOperand.data[divOperand.length() - 1] += a.data[i] * MODULE / b.data[0];
+      else
+        divOperand.data.push_back((a.data[i] / b.data[0]));
+      res += divOperand;
+      // std::cout << divOperand << std::endl;
+    }
+    return res;
+  }
   while (!leftOp.isNegative()) {
     leftOp -= rightOp;
     ++res;
   }
+  if ((a.isNegative() && !b.isNegative()) ||
+      (!a.isNegative() && b.isNegative()))
+        res.negative = 1;
   return --res;
 }
 
