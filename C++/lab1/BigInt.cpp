@@ -222,7 +222,7 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
   }
   if ((a.isNegative() && !b.isNegative()) ||
     (!a.isNegative() && b.isNegative()))
-      res = -res;
+      res.negative = 1;
   return res;
 }
 
@@ -245,23 +245,17 @@ namespace {
 } // namespace
 
 BigInt operator/(const BigInt& a, const BigInt& b) {
-  // std::cout << "HERE" << std::endl;
-  // if (b == 0)
-  //   throw std::invalid_argument("division by zero");
-  //   std::cout << "HERE" << std::endl;
-  // if (b == 1)
-  //   return a;
-  //   std::cout << "HERE" << std::endl;
-  // if (b == -1)
-  //   return -a;
-  std::cout << "HERE" << std::endl;
+  if (b == 0)
+    throw std::invalid_argument("division by zero");
+  if (b == 1)
+    return a;
+  if (b == -1)
+    return -a;
   BigInt leftOp = a.isNegative() ? -a : a,
          rightOp = b.isNegative() ? -b : b,
          res(0);
-  std::cout << "HERE" << std::endl;
   if (a == 0 || b.length() > a.length())
     return res;
-  std::cout << "HERE" << std::endl;
   if ((a.isNegative() && !b.isNegative()) ||
       (!a.isNegative() && b.isNegative()))
         res.negative = 1;
@@ -303,9 +297,13 @@ BigInt operator/(const BigInt& a, const BigInt& b) {
     std::cout << sub + " " + result<< std::endl;
     BigInt temp(sub);
     int quotient = divideBySubtraction(temp, rightOp);
+    std::cout << "HERE" << std::endl;
     result += std::to_string(quotient);
+    std::cout << "HERE" << std::endl;
     temp -= rightOp * BigInt(quotient);
+    std::cout << "HERE" << std::endl;
     sub = (int)temp ? std::string(temp) : "";
+    std::cout << "HERE" << std::endl;
     for (int i = 0; i < getSubstrForDivision(sub, idx, dividend, rightOp) - 1; i++)  // idx increments here
       result += "0";
   }
@@ -365,7 +363,7 @@ bool BigInt::operator==(const BigInt& num) const {
   if (!this->isNegative() && num.isNegative())
     return false; 
 
-  for (int i = 0; i < this->length(); ++i)
+  for (int i = 0; i < this->size(); ++i)
     if (this->data[i] != num.data[i])
       return false;
 
@@ -387,7 +385,7 @@ bool BigInt::operator<(const BigInt& num) const {
   if (num.length() < this->length())
     return false;
 
-  for (int i = this->length() - 1; i >= 0; --i) {
+  for (int i = this->size() - 1; i >= 0; --i) {
     int diff = this->data[i] - num.data[i];
     if (diff < 0)
       return true;
@@ -410,7 +408,7 @@ bool BigInt::operator>(const BigInt& num) const {
   if (this->length() < num.length())
     return false;
 
-  for (int i = this->length() - 1; i >= 0; --i) {
+  for (int i = this->size() - 1; i >= 0; --i) {
     int diff = this->data[i] - num.data[i];
     if (diff < 0)
       return false;
@@ -430,10 +428,10 @@ bool BigInt::operator>=(const BigInt& num) const {
 }
 
 bool BigInt::operator==(const int& num) const {
-  if (this->length() > 2)
+  if (this->size() > 2)
     return false;
   int temp = this->data[0];
-  if (this->length() > 1) {
+  if (this->size() > 1) {
     if (!this->isNegative() && (size_t)this->data[1] * MODULE + temp > INT_MAX)
       return false;
     if (this->isNegative() && (size_t)this->data[1] * MODULE + temp > (size_t)INT_MAX + 1)
@@ -450,10 +448,10 @@ bool BigInt::operator!=(const int& num) const {
 }
 
 bool BigInt::operator>(const int& num) const {
-  if (this->length() > 2)
+  if (this->size() > 2)
     return this->isNegative() ? false : true;
   int temp = this->data[0];
-  if (this->length() > 1) {
+  if (this->size() > 1) {
     if (!this->isNegative() && (size_t)this->data[1] * MODULE + temp > INT_MAX)
       return true;
     if (this->isNegative() && (size_t)this->data[1] * MODULE + temp > (size_t)INT_MAX + 1)
@@ -466,10 +464,10 @@ bool BigInt::operator>(const int& num) const {
 }
 
 bool BigInt::operator<(const int& num) const {
-  if (this->length() > 2)
+  if (this->size() > 2)
     return this->isNegative() ? true : false;
   int temp = this->data[0];
-  if (this->length() > 1) {
+  if (this->size() > 1) {
     if (!this->isNegative() && (size_t)this->data[1] * MODULE + temp > INT_MAX)
       return false;
     if (this->isNegative() && (size_t)this->data[1] * MODULE + temp > (size_t)INT_MAX + 1)
@@ -520,10 +518,10 @@ bool BigInt::operator>=(std::string str) const  {
 }
 
 BigInt::operator int() const {
-  if (this->length() > 2)
+  if (this->size() > 2)
     throw std::overflow_error("integer overflow");
   size_t res = this->data[0];
-  if (this->length() > 0)
+  if (this->size() > 0)
     res += (size_t)this->data[1] * MODULE;
   if (!this->isNegative() && res > INT_MAX)
     throw std::overflow_error("integer overflow");
@@ -534,10 +532,10 @@ BigInt::operator int() const {
 }
 
 BigInt::operator unsigned int() const {
-  if (this->length() > 2)
+  if (this->size() > 2)
     throw std::overflow_error("unsigned integer overflow");
   size_t res = this->data[0];
-  if (this->length() > 0)
+  if (this->size() > 0)
     res += (size_t)this->data[1] * MODULE;
   if (res > UINT_MAX)
     throw std::overflow_error("unsigned integer overflow");
@@ -548,8 +546,8 @@ BigInt::operator std::string() const {
   std::string str;
   if (this->isNegative())
     str += "-";
-  str += std::to_string(this->data[this->length() - 1]);
-  for (int i = this->length() - 2; i >= 0; --i) {
+  str += std::to_string(this->data[this->size() - 1]);
+  for (int i = this->size() - 2; i >= 0; --i) {
     std::string temp = std::to_string(this->data[i]);
     str += std::string(SINGLE_DIGIT_LEN - temp.length(), '0') + temp;
   }
