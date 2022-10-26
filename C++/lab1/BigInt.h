@@ -83,7 +83,8 @@ class BigInt {
 
     bool isNegative() const;
     size_t length() const;
-    size_t size() const;  // size in bytes
+    size_t size() const;
+    size_t sizeInBytes() const; // size in bytes
   private:
     std::vector<int> data;
     bool negative;

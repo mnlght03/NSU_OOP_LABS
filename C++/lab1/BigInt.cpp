@@ -123,12 +123,16 @@ const BigInt BigInt::operator--(int) {  // i--
   return temp;
 }
 
+size_t BigInt::sizeInBytes() const {
+  return sizeof(*this);
+}
+
 size_t BigInt::size() const {
-  return sizeof(BigInt);
+  return data.size();
 }
 
 size_t BigInt::length() const {
-  return data.size();
+  return std::string(*this).length();
 }
 
 bool BigInt::isNegative() const {
@@ -145,11 +149,11 @@ BigInt operator+(const BigInt& a, const BigInt& b) {
 
   BigInt res;
   int carry = 0;
-  for (int i = 0, j = 0; i < a.length() && j < b.length(); ++i, ++j) {
+  for (int i = 0, j = 0; i < a.size() && j < b.size(); ++i, ++j) {
     res.data.push_back((a.data[i] + b.data[i] + carry) % MODULE);
     carry = (a.data[i] + b.data[i] + carry) / MODULE;
   }
-  for (int i = b.length(); i < a.length(); ++i) {
+  for (int i = b.size(); i < a.size(); ++i) {
     res.data.push_back((a.data[i] + carry) % MODULE);
     carry = (a.data[i] + carry) / MODULE;
   }
@@ -171,16 +175,16 @@ BigInt operator-(const BigInt& a, const BigInt& b) {
   BigInt res;
   int carry = 0;
   // perform operation when abs(a) >= abs(b)
-  for (int i = 0, j = 0; i < a.length() && j < b.length(); ++i, ++j) {
+  for (int i = 0, j = 0; i < a.size() && j < b.size(); ++i, ++j) {
     int temp = a.data[i] - carry;
     carry = temp < b.data[j] ? 1 : 0;
     res.data.push_back(temp + carry * MODULE - b.data[j]);
   }
-  for (int i = b.length(); i < a.length(); ++i) {
+  for (int i = b.size(); i < a.size(); ++i) {
     res.data.push_back(a.data[i] ? a.data[i] - carry : MODULE - 1 - carry); 
     carry = a.data[i] ? 0 : 1;
   }
-  while (!res.data.back() && res.length() > 1)
+  while (!res.data.back() && res.size() > 1)
     res.data.pop_back();
   return res;
 }
@@ -199,12 +203,11 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
     res = 0;
     return res;
   }
- 
-  for (int i = 0; i < b.length(); ++i) {
+  for (int i = 0; i < b.size(); ++i) {
     BigInt termOfMultiplication;
     for (int k = 0; k < i; ++k) // pad with zeros
       termOfMultiplication.data.push_back(0);
-    for (int j = 0; j < a.length(); ++j) {
+    for (int j = 0; j < a.size(); ++j) {
       if (j)  // pad with zeros if a > MODULE
         termOfMultiplication.data.push_back(0);
       size_t temp = (size_t)b.data[i] * a.data[j];
@@ -223,44 +226,90 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
   return res;
 }
 
+namespace {
+  int divideBySubtraction(BigInt a, BigInt b) {
+    int res = 0;
+    while (a > 0) {
+      a -= b;
+      res++;
+    }
+    return --res;
+  }
+  int getSubstrForDivision(std::string &sub, int &idx, const std::string dividend, const BigInt divisor) {
+    int initalIdx = idx;
+    while(BigInt(sub) < divisor && idx < dividend.length()) {
+      sub += dividend[idx++];
+    }
+    return idx - initalIdx;
+  }
+} // namespace
+
 BigInt operator/(const BigInt& a, const BigInt& b) {
-  if (b == 0)
-    throw std::invalid_argument("division by zero");
-  if (b == 1)
-    return a;
-  if (b == -1)
-    return -a;
+  // std::cout << "HERE" << std::endl;
+  // if (b == 0)
+  //   throw std::invalid_argument("division by zero");
+  //   std::cout << "HERE" << std::endl;
+  // if (b == 1)
+  //   return a;
+  //   std::cout << "HERE" << std::endl;
+  // if (b == -1)
+  //   return -a;
+  std::cout << "HERE" << std::endl;
   BigInt leftOp = a.isNegative() ? -a : a,
          rightOp = b.isNegative() ? -b : b,
          res(0);
+  std::cout << "HERE" << std::endl;
   if (a == 0 || b.length() > a.length())
     return res;
-  if (a.length() == 1 && b.length() == 1) {
-    res = (a.data[0] / b.data[0]);
-    return res;
-  }
-  if (b.length() == 1) {
-    for (int i = 0; i < a.length(); i++) {
-      BigInt divOperand;
-      for (int j = 0; j < i; j++) {
-        divOperand.data.push_back(0);
-      }
-      if (!(a.data[i] / b.data[0]) && i)
-        divOperand.data[divOperand.length() - 1] += a.data[i] * MODULE / b.data[0];
-      else
-        divOperand.data.push_back((a.data[i] / b.data[0]));
-      res += divOperand;
-      // std::cout << divOperand << std::endl;
-    }
-    return res;
-  }
-  while (!leftOp.isNegative()) {
-    leftOp -= rightOp;
-    ++res;
-  }
+  std::cout << "HERE" << std::endl;
   if ((a.isNegative() && !b.isNegative()) ||
       (!a.isNegative() && b.isNegative()))
         res.negative = 1;
+  // if (a.size() == 1 && b.size() == 1) {
+  //   res = (a.data[0] / b.data[0]);
+  //   return res;
+  // }
+  // if (b.size() == 1) {
+  //   for (int i = 0; i < a.length(); i++) {
+  //     BigInt divOperand;
+  //     for (int j = 0; j < i; j++) {
+  //       divOperand.data.push_back(0);
+  //     }
+  //     if (!(a.data[i] / b.data[0]) && i)
+  //       divOperand.data[divOperand.length() - 1] += a.data[i] * MODULE / b.data[0];
+  //     else
+  //       divOperand.data.push_back((a.data[i] / b.data[0]));
+  //     res += divOperand;
+  //     // std::cout << divOperand << std::endl;
+  //   }
+  //   return res;
+  // }
+  std::cout << "HERE" << std::endl;
+  if (a.length() == b.length()) {
+    BigInt num = a;
+    while(num > 0) {
+      num -= b;
+      res++;
+    }
+    return --res;
+  }
+  std::string dividend(leftOp);
+  std::string result;
+  std::string sub = dividend.substr(0, rightOp.length());
+  int idx = rightOp.length();
+  
+  getSubstrForDivision(sub, idx, dividend, rightOp);
+  while (idx < dividend.length()) {
+    std::cout << sub + " " + result<< std::endl;
+    BigInt temp(sub);
+    int quotient = divideBySubtraction(temp, rightOp);
+    result += std::to_string(quotient);
+    temp -= rightOp * BigInt(quotient);
+    sub = (int)temp ? std::string(temp) : "";
+    for (int i = 0; i < getSubstrForDivision(sub, idx, dividend, rightOp) - 1; i++)  // idx increments here
+      result += "0";
+  }
+  res = BigInt(result);
   return --res;
 }
 
