@@ -198,11 +198,12 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
     return a;
   if (b == -1)
     return -a;
-  BigInt res;
-  if (b == 0) {
-    res = 0;
+  BigInt res(0);
+  if (a == 0 || b == 0)
     return res;
-  }
+  if ((a.isNegative() && !b.isNegative()) ||
+    (!a.isNegative() && b.isNegative()))
+      res.negative = 1;
   for (int i = 0; i < b.size(); ++i) {
     BigInt termOfMultiplication;
     for (int k = 0; k < i; ++k) // pad with zeros
@@ -220,9 +221,6 @@ BigInt operator*(const BigInt& a, const BigInt& b) {
         termOfMultiplication.data.pop_back();
     }
   }
-  if ((a.isNegative() && !b.isNegative()) ||
-    (!a.isNegative() && b.isNegative()))
-      res.negative = 1;
   return res;
 }
 
@@ -233,11 +231,15 @@ namespace {
       a -= b;
       res++;
     }
-    return --res;
+    return (int)a ? res - 1 : res;
   }
   int getSubstrForDivision(std::string &sub, int &idx, const std::string dividend, const BigInt divisor) {
     int initalIdx = idx;
-    while(BigInt(sub) < divisor && idx < dividend.length()) {
+    int temp = 0;
+    if (sub.empty() && idx < dividend.length())
+      sub += dividend[idx++];
+    while(idx < dividend.length() && BigInt(sub) < divisor) {
+      std::cout << "IN FUNC: idx = " << idx << " dividend[idx] = " << dividend[idx] << std::endl;
       sub += dividend[idx++];
     }
     return idx - initalIdx;
@@ -259,56 +261,51 @@ BigInt operator/(const BigInt& a, const BigInt& b) {
   if ((a.isNegative() && !b.isNegative()) ||
       (!a.isNegative() && b.isNegative()))
         res.negative = 1;
-  // if (a.size() == 1 && b.size() == 1) {
-  //   res = (a.data[0] / b.data[0]);
-  //   return res;
-  // }
-  // if (b.size() == 1) {
-  //   for (int i = 0; i < a.length(); i++) {
-  //     BigInt divOperand;
-  //     for (int j = 0; j < i; j++) {
-  //       divOperand.data.push_back(0);
-  //     }
-  //     if (!(a.data[i] / b.data[0]) && i)
-  //       divOperand.data[divOperand.length() - 1] += a.data[i] * MODULE / b.data[0];
-  //     else
-  //       divOperand.data.push_back((a.data[i] / b.data[0]));
-  //     res += divOperand;
-  //     // std::cout << divOperand << std::endl;
-  //   }
-  //   return res;
-  // }
-  std::cout << "HERE" << std::endl;
   if (a.length() == b.length()) {
-    BigInt num = a;
-    while(num > 0) {
-      num -= b;
-      res++;
+    res.data =  BigInt(divideBySubtraction(leftOp, rightOp)).data;  // store the result and keep the sign
+    return res;
+  }
+  if (a.size() == 1 && b.size() == 1) {
+    res = (a.data[0] / b.data[0]);
+    return res;
+  }
+  if (b.size() == 1) {
+    for (int i = 0; i < a.size(); i++) {
+      BigInt divOperand;
+      for (int j = 0; j < i; j++) {
+        divOperand.data.push_back(0);
+      }
+      if (!(a.data[i] / b.data[0]) && i)
+        divOperand.data[divOperand.size() - 1] += a.data[i] * MODULE / b.data[0];
+      else
+        divOperand.data.push_back((a.data[i] / b.data[0]));
+      res += divOperand;
     }
-    return --res;
+    return res;
   }
   std::string dividend(leftOp);
-  std::string result;
+  std::string result = "";
   std::string sub = dividend.substr(0, rightOp.length());
   int idx = rightOp.length();
-  
   getSubstrForDivision(sub, idx, dividend, rightOp);
-  while (idx < dividend.length()) {
-    std::cout << sub + " " + result<< std::endl;
+  while (idx <= dividend.length()) {
+    if (idx == dividend.length())
+      idx++;
+    // std::cout << "sub: " << sub << std::endl;
     BigInt temp(sub);
     int quotient = divideBySubtraction(temp, rightOp);
-    std::cout << "HERE" << std::endl;
     result += std::to_string(quotient);
-    std::cout << "HERE" << std::endl;
+    // std::cout << "result: " <<  result << std::endl;
     temp -= rightOp * BigInt(quotient);
-    std::cout << "HERE" << std::endl;
     sub = (int)temp ? std::string(temp) : "";
-    std::cout << "HERE" << std::endl;
-    for (int i = 0; i < getSubstrForDivision(sub, idx, dividend, rightOp) - 1; i++)  // idx increments here
+    for (int i = 0; i < getSubstrForDivision(sub, idx, dividend, rightOp) - 1; i++)  {  // idx increments here
       result += "0";
+    }
+    // std::cout << "idx: " + std::to_string(idx) << std::endl;
+    getchar();
   }
   res = BigInt(result);
-  return --res;
+  return res;
 }
 
 BigInt operator%(const BigInt& a, const BigInt& b) {
@@ -521,7 +518,7 @@ BigInt::operator int() const {
   if (this->size() > 2)
     throw std::overflow_error("integer overflow");
   size_t res = this->data[0];
-  if (this->size() > 0)
+  if (this->size() > 1)
     res += (size_t)this->data[1] * MODULE;
   if (!this->isNegative() && res > INT_MAX)
     throw std::overflow_error("integer overflow");

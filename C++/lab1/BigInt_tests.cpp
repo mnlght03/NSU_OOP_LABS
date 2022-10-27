@@ -163,6 +163,8 @@ TEST(BigIntOperator, DivisionOfBigInts) {
   BigInt a(MODULE);
   BigInt b(2);
   EXPECT_EQ(a / b, MODULE / 2);
+  b = -2;
+  EXPECT_EQ(a / b, -(MODULE / 2));
   EXPECT_EQ(b / a, 0);
   BigInt c(0);
   try {
@@ -172,6 +174,9 @@ TEST(BigIntOperator, DivisionOfBigInts) {
     EXPECT_EQ(std::string("division by zero"), err.what());
   }
   EXPECT_EQ(c / a, 0);
+  // a = "59817259187298371928739182741928";
+  // b = "9894719213";
+  // EXPECT_EQ(a / b, BigInt("6045372071671173346386"));
 }
 
 // TEST(BigIntOperator, RemainingOfBigInts) {
