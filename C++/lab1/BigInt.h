@@ -6,8 +6,6 @@
 #include <iomanip>  // stoi
 #include <string>
 #include <climits>  // INT_MAX
-#include <algorithm>  // std::min
-
 
 class Bigint {
   public:
@@ -38,8 +36,6 @@ class Bigint {
     friend Bigint operator*(const Bigint&, const Bigint&);
     friend Bigint operator/(const Bigint&, const Bigint&);
     friend Bigint operator%(const Bigint&, const Bigint&);
-    // exponentiation
-    // friend Bigint operator^(const Bigint&, int pow);
 
     // unary +
     Bigint operator+() const;
@@ -82,7 +78,6 @@ class Bigint {
     std::vector<int> data;
     bool negative;
 };
-
 
 std::ostream& operator<<(std::ostream& o, const Bigint& i);
 
