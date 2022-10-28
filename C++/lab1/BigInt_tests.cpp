@@ -255,15 +255,6 @@ TEST(BigintOperator, GreaterOrEqualOfBigints) {
   EXPECT_EQ(c >= a, false);
 }
 
-// TEST(BigintOperator, ComparisonWithInt) {
-//   Bigint a(LONG_MAX);
-//   EXPECT_EQ(a < INT_MAX, false);
-//   EXPECT_EQ(a > INT_MAX, true);
-//   EXPECT_EQ(INT_MAX < a, true);
-// }
-
-// ADD COMPARISON WITH OTHER TYPES
-
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

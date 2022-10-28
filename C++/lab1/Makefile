@@ -8,9 +8,6 @@ all: Bigint clean_o
 Bigint: Bigint_build main.cpp
 	$(CC) $(CFLAGS) Bigint_assignment_and_increment_operators.o Bigint_bool_operators.o Bigint_cast_operators.o Bigint_constructors.o Bigint_math_operators.o Bigint_size_operators.o main.cpp -o main
 
-Bigint_o: Bigint_build
-	$(CC) $(CFLAGS) Bigint_assignment_and_increment_operators.o Bigint_bool_operators.o Bigint_cast_operators.o Bigint_constructors.o Bigint_math_operators.o Bigint_size_operators.o -o Bigint.o
-
 Bigint_build: Bigint_assignment_and_increment_operators.cpp Bigint_bool_operators.cpp Bigint_cast_operators.cpp Bigint_constructors.cpp Bigint_math_operators.cpp Bigint_size_operators.cpp
 	$(CC) -c Bigint_assignment_and_increment_operators.cpp Bigint_bool_operators.cpp Bigint_cast_operators.cpp Bigint_constructors.cpp Bigint_math_operators.cpp Bigint_size_operators.cpp
 
