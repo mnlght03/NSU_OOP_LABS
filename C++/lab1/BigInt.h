@@ -1,5 +1,5 @@
-#ifndef BIG_INT_H_
-#define BIG_INT_H_
+#ifndef BIGINT_H_
+#define BIGINT_H_
 
 #include <iostream>
 #include <vector>
@@ -9,59 +9,49 @@
 #include <algorithm>  // std::min
 
 
-class BigInt {
+class Bigint {
   public:
-    BigInt();
-    BigInt(int);
-    BigInt(long int); // works for unsigned int as well
-    BigInt(unsigned long int);
-    BigInt(std::string);  // throws std::invalid_argument on error
-    BigInt(const BigInt&);
-    ~BigInt();
-    BigInt& operator=(const BigInt&);
-    BigInt& operator=(const int&);
-    BigInt& operator=(std::string);
+    Bigint();
+    Bigint(int);
+    Bigint(long int); // works for unsigned int as well
+    Bigint(unsigned long int);
+    Bigint(std::string);  // throws std::invalid_argument on error
+    Bigint(const Bigint&);
+    ~Bigint();
+    Bigint& operator=(const Bigint&);
+    Bigint& operator=(const int&);
+    Bigint& operator=(std::string);
 
-    BigInt& operator++();
-    const BigInt operator++(int);
-    BigInt& operator--();
-    const BigInt operator--(int);
+    Bigint& operator++();
+    const Bigint operator++(int);
+    Bigint& operator--();
+    const Bigint operator--(int);
 
-    BigInt& operator+=(const BigInt&);
-    BigInt& operator*=(const BigInt&);
-    BigInt& operator-=(const BigInt&);
-    BigInt& operator/=(const BigInt&);
-    BigInt& operator%=(const BigInt&);
+    Bigint& operator+=(const Bigint&);
+    Bigint& operator*=(const Bigint&);
+    Bigint& operator-=(const Bigint&);
+    Bigint& operator/=(const Bigint&);
+    Bigint& operator%=(const Bigint&);
 
-    friend BigInt operator+(const BigInt&, const BigInt&);
-    friend BigInt operator-(const BigInt&, const BigInt&);
-    friend BigInt operator*(const BigInt&, const BigInt&);
-    friend BigInt operator/(const BigInt&, const BigInt&);
-    friend BigInt operator%(const BigInt&, const BigInt&);
-    // friend BigInt operator^(const BigInt&, const BigInt&);
-    // friend BigInt operator&(const BigInt&, const BigInt&);
-    // friend BigInt operator|(const BigInt&, const BigInt&);
+    friend Bigint operator+(const Bigint&, const Bigint&);
+    friend Bigint operator-(const Bigint&, const Bigint&);
+    friend Bigint operator*(const Bigint&, const Bigint&);
+    friend Bigint operator/(const Bigint&, const Bigint&);
+    friend Bigint operator%(const Bigint&, const Bigint&);
+    // exponentiation
+    // friend Bigint operator^(const Bigint&, int pow);
 
+    // unary +
+    Bigint operator+() const;
+    // unary -
+    Bigint operator-() const;
 
-
-    // BigInt operator+(const BigInt&, const int&);
-    // BigInt operator-(const BigInt&, const int&);
-    // BigInt operator*(const BigInt&, const int&);
-    // BigInt operator/(const BigInt&, const int&);
-    // BigInt operator%(const BigInt&, const int&);
-    // friend BigInt operator^(const BigInt&, const BigInt&);
-    // friend BigInt operator&(const BigInt&, const BigInt&);
-    // friend BigInt operator|(const BigInt&, const BigInt&);
-
-    BigInt operator+() const;  // unary +
-    BigInt operator-() const;  // unary -
-
-    bool operator==(const BigInt&) const;
-    bool operator!=(const BigInt&) const;
-    bool operator<(const BigInt&) const;
-    bool operator>(const BigInt&) const;
-    bool operator<=(const BigInt&) const;
-    bool operator>=(const BigInt&) const;
+    bool operator==(const Bigint&) const;
+    bool operator!=(const Bigint&) const;
+    bool operator<(const Bigint&) const;
+    bool operator>(const Bigint&) const;
+    bool operator<=(const Bigint&) const;
+    bool operator>=(const Bigint&) const;
 
     bool operator==(const int&) const;
     bool operator!=(const int&) const;
@@ -80,17 +70,20 @@ class BigInt {
     operator int() const;
     operator unsigned int() const;
     operator std::string() const;
-
+    // sign of value
     bool isNegative() const;
+    // length of stringified value
     size_t length() const;
+    // size of vector
     size_t size() const;
-    size_t sizeInBytes() const; // size in bytes
+    // size in bytes
+    size_t sizeInBytes() const;
   private:
     std::vector<int> data;
     bool negative;
 };
 
 
-std::ostream& operator<<(std::ostream& o, const BigInt& i);
+std::ostream& operator<<(std::ostream& o, const Bigint& i);
 
-#endif  // BIG_INT_H_
+#endif  // BIGINT_H_
