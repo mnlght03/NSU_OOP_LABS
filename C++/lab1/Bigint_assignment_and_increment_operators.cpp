@@ -14,7 +14,7 @@ Bigint& Bigint::operator=(const int& num) {
   return *this;
 }
 
-Bigint& Bigint::operator=(std::string str) {
+Bigint& Bigint::operator=(const std::string &str) {
   Bigint temp(str);
   *this = temp;
   return *this;

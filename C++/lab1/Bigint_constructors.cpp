@@ -43,7 +43,7 @@ Bigint::Bigint(unsigned long int num) {
   }
 }
 
-Bigint::Bigint(std::string str) {
+Bigint::Bigint(const std::string &str) {
   negative = 0;
   size_t len = SINGLE_DIGIT_LEN,
          endPos = str.size();

@@ -137,32 +137,32 @@ bool Bigint::operator>=(const int& num) const {
   return !(*this < num);
 }
 
-bool Bigint::operator==(std::string str) const {
+bool Bigint::operator==(const std::string &str) const {
   Bigint temp(str);
   return *this == temp;
 }
 
-bool Bigint::operator!=(std::string str) const {
+bool Bigint::operator!=(const std::string &str) const {
   Bigint temp(str);
   return *this != temp;
 }
 
-bool Bigint::operator<(std::string str) const {
+bool Bigint::operator<(const std::string &str) const {
   Bigint temp(str);
   return *this < temp;
 }
 
-bool Bigint::operator>(std::string str) const {
+bool Bigint::operator>(const std::string &str) const {
   Bigint temp(str);
   return *this > temp;
 }
 
-bool Bigint::operator<=(std::string str) const  {
+bool Bigint::operator<=(const std::string &str) const  {
   Bigint temp(str);
   return *this <= temp;
 }
 
-bool Bigint::operator>=(std::string str) const  {
+bool Bigint::operator>=(const std::string &str) const  {
   Bigint temp(str);
   return *this >= temp;
 }

@@ -13,12 +13,12 @@ class Bigint {
     Bigint(int);
     Bigint(long int); // works for unsigned int as well
     Bigint(unsigned long int);
-    Bigint(std::string);  // throws std::invalid_argument on error
+    Bigint(const std::string&);  // throws std::invalid_argument on error
     Bigint(const Bigint&);
     ~Bigint();
     Bigint& operator=(const Bigint&);
     Bigint& operator=(const int&);
-    Bigint& operator=(std::string);
+    Bigint& operator=(const std::string &);
 
     Bigint& operator++();
     const Bigint operator++(int);
@@ -56,12 +56,12 @@ class Bigint {
     bool operator<=(const int&) const;
     bool operator>=(const int&) const;
 
-    bool operator==(std::string) const;
-    bool operator!=(std::string) const;
-    bool operator<(std::string) const;
-    bool operator>(std::string) const;
-    bool operator<=(std::string) const;
-    bool operator>=(std::string) const;
+    bool operator==(const std::string &) const;
+    bool operator!=(const std::string &) const;
+    bool operator<(const std::string &) const;
+    bool operator>(const std::string &) const;
+    bool operator<=(const std::string &) const;
+    bool operator>=(const std::string &) const;
 
     operator int() const;
     operator unsigned int() const;

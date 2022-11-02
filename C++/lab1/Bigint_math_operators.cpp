@@ -2,7 +2,7 @@
 #include "Bigint_defines.h"
 
 namespace {
-  int signOfMultDivResult(Bigint a, Bigint b) {
+  int signOfMultDivResult(const Bigint &a, const Bigint &b) {
     if ((a.isNegative() && !b.isNegative()) ||
         (!a.isNegative() && b.isNegative()))
           return -1;
@@ -16,7 +16,7 @@ namespace {
     }
     return res;
   }
-  int getSubstrForDivision(std::string &sub, int &idx, const std::string dividend, const Bigint divisor) {
+  int getSubstrForDivision(std::string &sub, int &idx, const std::string &dividend, const Bigint &divisor) {
     if (idx == dividend.length()) {
       idx++;
       return 0;
