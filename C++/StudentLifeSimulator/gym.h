@@ -8,11 +8,11 @@
 class GymCard : public Paid {
   int duration;
   public:
-    GymCard(int _cost, int _duration) : Paid(_cost), duration(_duration) {}
+    GymCard(const int& _cost, const int& _duration) : Paid(_cost), duration(_duration) {}
     GymCard(const GymCard &gymCard) : Paid(gymCard.getCost()) {
       this->duration = gymCard.getDuration();
     }
-    ~GymCard();
+    ~GymCard() = default;
     int getDuration() const {
       return duration;
     }
@@ -27,26 +27,33 @@ class GymCard : public Paid {
 class Gym : public Interactive {
   int healthIncr;
   int energyDecr;
+  int moodIncr;
   GymCard gymCard;
   bool requestCard(const Player &p) const {
-    return (p.gymCard != nullptr);
+    return ((!!p.GetObject<GymCard>()));
   }
   public:
-    Gym(int _healthIncr, int _energyDecr, GymCard _gymCard) : healthIncr(_healthIncr), energyDecr(_energyDecr), gymCard(_gymCard) {}
-    bool Interact(Player &p) const final {
+    Gym(const int& _healthIncr, const int& _energyDecr, const int& _moodIncr, const GymCard& _gymCard) :
+      healthIncr(_healthIncr), energyDecr(_energyDecr),
+      moodIncr(_moodIncr), gymCard(_gymCard) {}
+    void Interact(Player &p) const final {
         if (!requestCard(p))
-          return false;
+          throw std::logic_error("You have no Gym Card");
         p.addHealth(healthIncr);
         p.addEnergy(-energyDecr);
-        p.gymCard->useCard();
-        if (p.gymCard->isExpired())
-          p.gymCard = nullptr;
+        GymCard *gymCard = p.GetObject<GymCard>();
+        gymCard->useCard();
+        if (gymCard->isExpired())
+          p.RemoveObject<GymCard>();
     }
-    bool buyCard(Player &p, int duration) const {
+    void buyCard(Player &p) const {
       if (!this->gymCard.isAffordable(p))
-        return false;
+        throw std::logic_error("You don't have enough money for Gym Card");
       p.addMoney(-this->gymCard.getCost());
-      p.gymCard = new GymCard(this->gymCard);
+      p.SetObject(GymCard(gymCard.getCost(), gymCard.getDuration()));
+    }
+    const GymCard& getCard() const {
+      return gymCard;
     }
 };
 

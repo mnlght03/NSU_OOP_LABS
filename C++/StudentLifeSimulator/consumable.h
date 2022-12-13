@@ -4,19 +4,21 @@
 #include "player.h"
 #include "paid.h"
 #include "buff.h"
+#include <iostream>
+#include <stdexcept>
 
 class Consumable : public Paid {
   public:
-    Consumable(int _cost) : Paid(_cost) {}
+    Consumable(const int& _cost) : Paid(_cost) {}
     virtual ~Consumable() = default;
-    virtual bool use(Player &p) = 0;
+    virtual void use(Player &p) const = 0;
 };
 
 class Food : public Consumable {
   int hungerDecr;
   int moodIncr;
   public:
-    Food(int _foodCost, int _hungerDecr, int _moodIncr) :
+    Food(const int& _foodCost, const int& _hungerDecr, const int& _moodIncr) :
       Consumable(_foodCost), hungerDecr(_hungerDecr), moodIncr(_moodIncr) {}
     virtual ~Food() = default;
     int getHungerDecr() const {
@@ -25,9 +27,9 @@ class Food : public Consumable {
     int getMoodIncr() const {
       return moodIncr;
     }
-    bool use(Player &p) const {
+    virtual void use(Player &p) const {
       if (!isAffordable(p))
-        return false;
+        throw std::logic_error("You don't have enough money");
       p.addMoney(-this->getCost());
       p.addHunger(-this->getHungerDecr());
       p.addMood(this->getMoodIncr());
@@ -35,18 +37,56 @@ class Food : public Consumable {
 };
 
 class Coffee : public Consumable{
-  Buff *intellectBuff;
-  Buff *energyBuff;
+  IntellectBuff intellectBuff;
+  EnergyBuff energyBuff;
   public:
-    Coffee(int _cost, int _duration, Buff *intBuff, Buff *enBuff) :
+    Coffee(const int& _cost, const IntellectBuff& intBuff, const EnergyBuff& enBuff) :
           Consumable(_cost), intellectBuff(intBuff), energyBuff(enBuff) {}
     virtual ~Coffee() = default;
-    bool use(Player &p) const {
+    void use(Player &p) const {
       if (!isAffordable(p))
-        return false;
-      intellectBuff->applyBuff(p);
-      energyBuff->applyBuff(p);
+        throw std::logic_error("You don't have enough money");
+      try {
+        intellectBuff.applyBuff(p);
+      } catch (std::exception& err) {
+        std::cout << err.what() << std::endl;
+        getchar();
+      }
+      try {
+        energyBuff.applyBuff(p);
+      } catch (std::exception& err) {
+        std::cout << err.what() << std::endl;
+        getchar();
+      }
     }
 };
+
+class Beer : public Consumable{
+  IntellectBuff intellectBuff;
+  EnergyBuff energyBuff;
+  int moodIncrease;
+  public:
+    Beer(const int& _cost, const IntellectBuff& intBuff, const EnergyBuff& enBuff, const int& moodIncr) :
+          Consumable(_cost), intellectBuff(intBuff), energyBuff(enBuff), moodIncrease(moodIncr) {}
+    virtual ~Beer() = default;
+    void use(Player &p) const {
+      if (!isAffordable(p))
+        throw std::logic_error("You don't have enough money");
+      try {
+        intellectBuff.applyBuff(p);
+      } catch (std::exception& err) {
+        std::cout << err.what() << std::endl;
+        getchar();
+      }
+      try {
+        energyBuff.applyBuff(p);
+      } catch (std::exception& err) {
+        std::cout << err.what() << std::endl;
+        getchar();
+      }
+      p.addMood(moodIncrease);
+    }
+};
+
 
 #endif  // _STUDENT_LIFE_SIMULATOR_CONSUMABLE_H

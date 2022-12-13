@@ -5,35 +5,48 @@
 #include "player.h"
 #include "consumable.h"
 
-class BaseCafe : public Interactive {
-  Consumable *food;
+class BaseCafe {
+  Food food;
   public:
-    BaseCafe(Consumable *f) : food(f) {}
+    BaseCafe(Food f) : food(f) {}
     virtual ~BaseCafe() = default;
-    bool getDrink(Player &p, Consumable *drink) const {
-      if (!drink->isAffordable(p))
-        return false;
-      drink->use(p);
+    void eatFood(Player &p) const {
+      if (!food.isAffordable(p))
+        throw std::logic_error("You don't have enough money");
+      food.use(p);
     }
-    bool eatFood(Player &p, Consumable *food) const {
-      if (!food->isAffordable(p))
-        return false;
-      food->use(p);
+    int getFoodCost() const {
+      return food.getCost();
     }
-    // Interact() that allows you to make friends
+    // TODO: Interact() that allows you to make friends
 };
 
 class Cafe : public BaseCafe {
-  Consumable *coffee;
-  Consumable *tea;
+  Coffee coffee;
   public:
-    Cafe(Consumable *f, Consumable *c, Consumable *t) : BaseCafe(f), coffee(c), tea(t) {}
+    Cafe(const Food& f, const Coffee& c) : BaseCafe(f), coffee(c) {}
+    void drinkCoffee(Player &p) const {
+      if (!coffee.isAffordable(p))
+        throw std::logic_error("You don't have enough money");
+      coffee.use(p);
+    }
+    int getCoffeeCost() const {
+      return coffee.getCost();
+    }
 };
 
 class Bar : public BaseCafe {
-  Consumable *beer;
+  Beer beer;
   public:
-    Bar(Consumable *f, Consumable *b) : BaseCafe(f), beer(b) {}
+    Bar(const Food& f, const Beer& b) : BaseCafe(f), beer(b) {}
+    void drinkBeer(Player &p) const {
+      if (!beer.isAffordable(p))
+        throw std::logic_error("You don't have enough money");
+      beer.use(p);
+    }
+    int getBeerCost() const {
+      return beer.getCost();
+    }
 };
 
 #endif  // _STUDENT_LIFE_SIMULATOR_CAFE_H

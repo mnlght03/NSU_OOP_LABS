@@ -10,7 +10,7 @@ class University : public Interactive {
 
   public:
     University(int _intellectIncr, int _energyDecr) : intellectIncr(_intellectIncr), energyDecr(_energyDecr) {}
-    bool Interact(Player &p) const {
+    void Interact(Player &p) const {
       p.addIntellect(intellectIncr);
       p.addEnergy(-energyDecr);
     }

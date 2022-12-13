@@ -6,14 +6,14 @@
 class Paid {
   int cost;
   public:
-    Paid(int _cost) : cost(_cost) {}
+    Paid(const int& _cost) : cost(_cost) {}
     bool isAffordable(const Player &p) const {
       return p.getMoney() >= cost;
     }
     int getCost() const {
       return cost;
     }
-    void setCost(int value) {
+    void setCost(const int& value) {
       cost = value;
     }
 };

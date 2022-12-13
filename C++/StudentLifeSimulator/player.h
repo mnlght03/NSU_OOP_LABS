@@ -1,15 +1,14 @@
 #ifndef _STUDENT_LIFE_SIMULATOR_PLAYER_H
 #define _STUDENT_LIFE_SIMULATOR_PLAYER_H
 
-#include "gym.h"
-#include "buff.h"
-#include "consumable.h"
+#include "composite.h"
 #include <vector>
 
-#define INTBUFFIDX 0
-#define ENERGYBUFFIDX 1
+class GymCard;
+class IntellectBuff;
+class EnergyBuff;
 
-class Player {
+class Player : public composite::Composite<Player> {
   int health;
   int intellect;
   int money;
@@ -17,19 +16,16 @@ class Player {
   int hunger;
   int influence;
   int mood;
-  // 0 - intellectBuff, 1 - energyBuff
-  std::vector<Buff*> buffs = std::vector<Buff*>(2);
-  // food that player bought in a shop (all should have cost 0)
-  std::vector<Food*> foodStorage;
+  int sleep_energy_incr = 60;
+  int sleep_mood_incr = 40;
+  int sleep_hunger_incr = 30;
   public:
-    GymCard *gymCard;
-    Player(int _health, int _intellect, int _money, int _energy, int _hunger, int _influence, int _mood) :
-      health(_health), intellect(_intellect), money(_money), energy(_energy), influence(_influence), mood(_mood) {
-        gymCard = nullptr;
-        std::fill(buffs.begin(), buffs.end(), nullptr);
-      }
-    ~Player() {
-      delete gymCard;
+    Player(const int& _health, const int& _intellect, const int& _money, const int& _energy, const int& _hunger, const int& _influence, const int& _mood) :
+      health(_health), intellect(_intellect), money(_money), energy(_energy), hunger(_hunger), influence(_influence), mood(_mood) {}
+    virtual ~Player() {
+      this->RemoveObject<GymCard>();
+      this->RemoveObject<IntellectBuff>();
+      this->RemoveObject<EnergyBuff>();
     }
     int getHealth() const {
       return health;
@@ -52,51 +48,68 @@ class Player {
     int getMood() const {
       return mood;
     }
-    void addHealth(int value) {
-      if (health != 0 && health != 100)
-        health += value;
+    int get_sleep_energy_incr() const {
+      return sleep_energy_incr;
     }
-    void addIntellect(int value) {
-      if (intellect != 0 && intellect != 100)
+    int get_sleep_mood_incr() const {
+      return sleep_mood_incr;
+    }
+    int get_sleep_hunger_incr() const {
+      return sleep_hunger_incr;
+    }
+    void set_sleep_energy_incr(const int& val) {
+      sleep_energy_incr = val;
+    }
+    void set_sleep_mood_incr(const int& val) {
+      sleep_mood_incr = val;
+    }
+    void set_sleep_hunger_incr(const int& val) {
+      sleep_hunger_incr = val;
+    }
+    void addHealth(const int& value) {
+      health += value;
+      if (health < 0) health = 0;
+      if (health > 100) health = 100;
+    }
+    void addIntellect(const int& value) {
+      if (intellect > 0 && intellect < 100)
         intellect += value;
+      if (intellect < 0) intellect = 0;
+      if (intellect > 100) intellect = 100;
     }
-    void addMoney(int value) {
-      if (money != 0 && money != 100)
-        money += value;
+    void addMoney(const int& value) {
+      money += value;
     }
-    void addEnergy(int value) {
-      if (energy != 0 && energy != 100)
-        energy += value;
+    void addEnergy(const int& value) {
+      energy += value;
+      if (energy < 0) energy = 0;
+      if (energy > 100) energy = 100;
     }
-    void addHunger(int value) {
-      if (hunger != 0 && hunger != 100)
-        hunger += value;
+    void addHunger(const int& value) {
+      hunger += value;
+      if (hunger < 0) hunger = 0;
+      if (hunger > 100) hunger = 100;
     }
-    void addInfluence(int value) {
-      if (influence != 0 && influence != 100)
-        influence += value;
+    void addInfluence(const int& value) {
+      influence += value;
+      if (influence < 0) influence = 0;
+      if (influence > 100) influence = 100;
     }
-    void addMood(int value) {
-      if (mood != 0 && mood != 100)
-        mood += value;
+    void addMood(const int& value) {
+      mood += value;
+      if (mood < 0) mood = 0;
+      if (mood > 100) mood = 100;
     }
-    Buff* getIntellectBuff() {
-      return buffs[INTBUFFIDX];
+    void Sleep() {
+      addEnergy(sleep_energy_incr);
+      addHunger(sleep_hunger_incr);
+      addMood(sleep_mood_incr);
     }
-    Buff* getEnergyBuff() {
-      return buffs[ENERGYBUFFIDX];
+    bool isIntellectBuffed() const {
+      return (!!this->GetObject<IntellectBuff>());
     }
-    bool isIntellectBuffed() {
-      return getIntellectBuff() != nullptr;
-    }
-    bool isEnergyBuffed() {
-      return getEnergyBuff() != nullptr;
-    }
-    void setIntellectBuff(Buff *intellectBuff) {
-      buffs[INTBUFFIDX] = intellectBuff;
-    }
-    void setEnergyBuff(Buff *energyBuff) {
-      buffs[ENERGYBUFFIDX] = energyBuff;
+    bool isEnergyBuffed() const {
+      return (!!this->GetObject<EnergyBuff>());
     }
 };
 
