@@ -6,6 +6,7 @@
 TEST(BigintConstructor, InvalidStringFormat1) {
   try {
     Bigint a("qweasd");
+    FAIL() << "Expected 'Invalid format' error";
   } catch (std::invalid_argument const& err) {
     EXPECT_EQ(std::string("Invalid format"), err.what());
   }
@@ -14,6 +15,7 @@ TEST(BigintConstructor, InvalidStringFormat1) {
 TEST(BigintConstructor, InvalidStringFormat2) {
   try {
     Bigint a("1-123");
+    FAIL() << "Expected 'Invalid format' error";
   } catch (std::invalid_argument const& err) {
     EXPECT_EQ(std::string("Invalid format"), err.what());
   }
