@@ -1,32 +1,29 @@
 #pragma once
 
 #include <iostream>
+#include <type_traits>
+#include <tuple>
 
-template<typename Ch, typename Tr, size_t I, typename... Ts>
-struct tuplePrinter {
-  static void print(std::basic_ostream<Ch, Tr>& os, std::tuple<Ts...> t) {
-    tuplePrinter<Ch, Tr, I - 1, Ts...>::print(os, t);
-    if (I < sizeof...(Ts))
-      os << ", " << std::get<I>(t);
+template<typename T>
+void formatOutput(std::ostream& os, const T& elem) {
+  if constexpr (std::is_same_v<std::remove_reference_t<T>, bool>) {
+    os << (elem ? "true" : "false");
+  } else if constexpr (std::is_same_v<std::remove_reference_t<T>, std::string>) {
+    os << "\"" << elem << "\"";
+  } else if constexpr (std::is_same_v<std::remove_reference_t<T>, char> ||
+            std::is_same_v<std::remove_reference_t<T>, unsigned char>) {
+    os << "\'" << elem << "\'";
+  } else {
+    os << elem;
   }
-};
+}
 
-template<typename Ch, typename Tr, typename... Ts>
-struct tuplePrinter<Ch, Tr, 0, Ts...> {
-  std::basic_ostream<Ch, Tr>& print(std::basic_ostream<Ch, Tr>& os, std::tuple<Ts...> t) {
-    os << std::get<0>(t);
-  }
-};
-
-template<typename Ch, typename Tr,typename... Ts>
-struct tuplePrinter<Ch, Tr, -1, Ts...> {
-  std::basic_ostream<Ch, Tr>& print(std::basic_ostream<Ch, Tr>& os, std::tuple<Ts...> t) {}
-};
-
-
-template<typename Ch, typename Tr, typename... Ts>
-std::basic_ostream<Ch, Tr>& operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Ts...> t) {
-  os << "("
-  tuplePrinter<Ch, Tr, sizeof...(Ts), Ts>::print(os, t);
+template<typename... Ts>
+std::ostream& operator<<(std::ostream& os, std::tuple<Ts...> const& t) {
+  os << "(";
+  size_t n = 0;
+  std::apply([&](const Ts&... args) { 
+    ((formatOutput(os, args), os << (++n < sizeof...(Ts) ? ", " : "")), ...);
+  }, t);
   return os << ")";
 }
